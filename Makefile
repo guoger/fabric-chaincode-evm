@@ -75,13 +75,28 @@ changelog:
 	./scripts/changelog.sh v$(PREV_VERSION) v$(BASE_VERSION)
 
 .PHONY: docker
-docker: 
+docker: evmscc-linux
 	docker build . -t hyperledger/fabric-peer-evm:latest
+
+DRUN = docker run -i --rm $(DOCKER_RUN_FLAGS) -w /opt/gopath/src/$(EVMSCC)
 
 evmscc-linux: $(BUILD_DIR)/linux/lib/evmscc.so
 $(BUILD_DIR)/linux/lib/evmscc.so:
-	@echo "Building $@.."
-	go build -o $@ -buildmode=plugin ./plugin
+	@mkdir -p $(@D)
+	$(eval TMPDIR := $(shell mktemp -d /tmp/evmscc-build.XXXXX))
+	@echo $(TMPDIR)
+	@rsync -az --exclude=".*/" --exclude=".*" --exclude="build/" $(GOPATH)/src/$(FABRIC) $(TMPDIR)
+	@rsync -az --exclude=".*/" --exclude=".*" --exclude="build/" $(GOPATH)/src/$(EVMSCC) $(TMPDIR)
+	@echo "Building $@"
+	@$(DRUN) \
+		-v $(TMPDIR)/fabric-chaincode-evm:/opt/gopath/src/$(EVMSCC) \
+		-v $(TMPDIR)/fabric:/opt/gopath/src/$(FABRIC) \
+		-v $(abspath $(@D)):$(LIB_DIR) \
+		-v $(PWD)/scripts/build.sh:/opt/build.sh \
+		-e LIB_DIR=$(LIB_DIR) \
+		$(BASE_DOCKER_NS)/fabric-baseimage:$(BASE_DOCKER_TAG) \
+		bash -c '/opt/build.sh /opt/gopath/src/$(FABRIC) /opt/gopath/src/$(EVMSCC)'
+	@rm -rf $(TMPDIR)
 
 .PHONY: clean
 clean:

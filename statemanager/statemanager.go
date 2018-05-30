@@ -9,7 +9,7 @@ package statemanager
 import (
 	"github.com/hyperledger/burrow/account"
 	"github.com/hyperledger/burrow/binary"
-	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric-chaincode-evm/shim"
 )
 
 type StateManager interface {

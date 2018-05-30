@@ -19,7 +19,7 @@ import (
 	"github.com/hyperledger/burrow/logging"
 	"github.com/hyperledger/fabric-chaincode-evm/statemanager"
 	"github.com/hyperledger/fabric/common/flogging"
-	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric-chaincode-evm/shim"
 	"github.com/hyperledger/fabric/protos/msp"
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"golang.org/x/crypto/sha3"
